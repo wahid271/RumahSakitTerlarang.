@@ -1,12 +1,17 @@
 /**
  * main.js
- * ----------------------------------
- * Entry point aplikasi. Menginisialisasi kelas Game dan memulai loop.
+ * Entry point aplikasi
  */
 
 import { Game } from './core/Game.js';
 
-// TODO: Implement Main Initialization
-
-const game = new Game();
-game.start();
+// Tunggu DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        const game = new Game();
+        game.start();
+        console.log('Game initialized successfully');
+    } catch (error) {
+        console.error('Failed to initialize game:', error);
+    }
+});
