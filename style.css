@@ -1,11 +1,16 @@
 /* Reset & Base Styles */
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+}
 
 body {
     overflow: hidden;
     background-color: #000;
     color: #fff;
     font-family: 'Courier New', Courier, monospace;
+    user-select: none;
 }
 
 #game-container {
@@ -14,14 +19,256 @@ body {
     position: relative;
 }
 
-canvas { display: block; }
-
-/* UI Layers */
-.ui-layer {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
+canvas { 
+    display: block; 
 }
 
-/* TODO: Tambahkan style spesifik untuk HUD, Menu, Inventory, dll */
+/* ========================================
+   LOADING SCREEN
+   ======================================== */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 1s ease;
+}
+
+.loading-screen.fade-out {
+    opacity: 0;
+}
+
+.loading-content {
+    text-align: center;
+    max-width: 600px;
+    padding: 20px;
+}
+
+.loading-title {
+    font-size: 3em;
+    color: #8b0000;
+    letter-spacing: 5px;
+    text-shadow: 0 0 20px rgba(139, 0, 0, 0.8);
+    margin-bottom: 10px;
+    animation: flicker 3s infinite;
+}
+
+.loading-subtitle {
+    font-size: 1.2em;
+    color: #666;
+    font-style: italic;
+    margin-bottom: 40px;
+}
+
+.loading-bar-container {
+    width: 100%;
+    height: 4px;
+    background: #222;
+    border: 1px solid #444;
+    margin-bottom: 20px;
+}
+
+.loading-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #8b0000, #ff0000);
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
+.loading-text {
+    color: #888;
+    font-size: 0.9em;
+    margin-bottom: 10px;
+}
+
+.loading-tip {
+    color: #555;
+    font-size: 0.8em;
+}
+
+@keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+    52% { opacity: 0.3; }
+    54% { opacity: 0.9; }
+}
+
+/* ========================================
+   HUD
+   ======================================== */
+.hud-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 100;
+    transition: filter 0.3s ease;
+}
+
+.hud-container.low-health {
+    filter: sepia(0.5) saturate(2) hue-rotate(-30deg);
+    animation: heartbeat 1s infinite;
+}
+
+@keyframes heartbeat {
+    0%, 100% { filter: sepia(0.3); }
+    50% { filter: sepia(0.7) saturate(3); }
+}
+
+/* Crosshair */
+.crosshair {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+}
+
+.crosshair::before,
+.crosshair::after {
+    content: '';
+    position: absolute;
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.crosshair::before {
+    width: 2px;
+    height: 20px;
+    left: 9px;
+    top: 0;
+}
+
+.crosshair::after {
+    width: 20px;
+    height: 2px;
+    left: 0;
+    top: 9px;
+}
+
+/* Health & Stamina Bars */
+.health-container,
+.stamina-container {
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stamina-container {
+    bottom: 70px;
+}
+
+.hud-label {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+    min-width: 70px;
+}
+
+.bar-container {
+    width: 250px;
+    height: 12px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid #444;
+    position: relative;
+}
+
+.bar-fill {
+    height: 100%;
+    transition: width 0.2s ease;
+}
+
+.health-fill {
+    background: linear-gradient(90deg, #8b0000, #ff3333);
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
+.stamina-fill {
+    background: linear-gradient(90deg, #006600, #00ff00);
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+.bar-value {
+    font-size: 0.9em;
+    color: #fff;
+    min-width: 30px;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+}
+
+/* Objective */
+.objective-container {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 15px 20px;
+    border-left: 3px solid #8b0000;
+    max-width: 300px;
+}
+
+.objective-label {
+    font-size: 0.8em;
+    color: #8b0000;
+    margin-bottom: 5px;
+    letter-spacing: 2px;
+}
+
+.objective-text {
+    font-size: 1em;
+    color: #fff;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+}
+
+/* Interaction Prompt */
+.interaction-prompt {
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px 20px;
+    border: 1px solid #666;
+    font-size: 1em;
+    color: #fff;
+    text-align: center;
+}
+
+/* ========================================
+   POINTER LOCK INSTRUCTION
+   ======================================== */
+.click-to-start {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 30px 50px;
+    border: 2px solid #8b0000;
+    text-align: center;
+    z-index: 200;
+    cursor: pointer;
+}
+
+.click-to-start h2 {
+    color: #8b0000;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+}
+
+.click-to-start p {
+    color: #aaa;
+    font-size: 0.9em;
+}
