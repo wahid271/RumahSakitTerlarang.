@@ -5,6 +5,8 @@
  * agar tidak perlu file eksternal untuk development.
  */
 
+import * as THREE from 'three';
+
 export class TextureGenerator {
     /**
      * Membuat texture lantai keramik rumah sakit
@@ -186,6 +188,3 @@ export class TextureGenerator {
         return texture;
     }
 }
-
-// Import THREE untuk CanvasTexture
-import * as THREE from 'three';
