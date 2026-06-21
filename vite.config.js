@@ -10,7 +10,7 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
-    minify: 'terser',
+    // Hapus minify: 'terser', gunakan default esbuild
     rollupOptions: {
       output: {
         manualChunks: {
