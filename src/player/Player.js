@@ -4,7 +4,6 @@
  * Entitas utama player. Menggabungkan semua komponen player.
  */
 
-import * as THREE from 'three';
 import { PlayerMovement } from './PlayerMovement.js';
 import { PlayerCamera } from './PlayerCamera.js';
 import { PlayerHealth } from './PlayerHealth.js';
@@ -29,6 +28,15 @@ export class Player {
         
         // Subscribe to events
         this.setupEventListeners();
+        
+        // Handle pointer lock changes
+        document.addEventListener('pointerlockchange', () => {
+            if (document.pointerLockElement === domElement) {
+                console.log('Game started - Pointer locked');
+            } else {
+                console.log('Game paused - Pointer unlocked');
+            }
+        });
     }
 
     setupEventListeners() {
@@ -46,6 +54,11 @@ export class Player {
 
     update(deltaTime) {
         if (this.isDead) return;
+        
+        // Only update if pointer is locked
+        if (document.pointerLockElement !== this.domElement) {
+            return;
+        }
         
         // Update all components
         this.movement.update(deltaTime, this.stamina);
