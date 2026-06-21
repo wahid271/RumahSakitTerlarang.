@@ -4,18 +4,27 @@
  * Sistem Publish/Subscribe untuk komunikasi antar modul yang ter-decouple.
  */
 
-// TODO: Implement Event Bus
-
 export class EventBus {
     constructor() {
         this.events = {};
     }
 
     subscribe(event, callback) {
-        // TODO: Add callback to event
+        if (!this.events[event]) {
+            this.events[event] = [];
+        }
+        this.events[event].push(callback);
     }
 
     publish(event, data) {
-        // TODO: Trigger callbacks
+        if (this.events[event]) {
+            this.events[event].forEach(callback => callback(data));
+        }
+    }
+
+    unsubscribe(event, callback) {
+        if (this.events[event]) {
+            this.events[event] = this.events[event].filter(cb => cb !== callback);
+        }
     }
 }
