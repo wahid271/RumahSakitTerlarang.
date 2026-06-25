@@ -36,9 +36,10 @@ export class LoadingScreen {
 
     hide() {
         if (this.container) {
-            this.container.classList.add('fade-out');
+            this.container.style.opacity = '0';
+            this.container.style.transition = 'opacity 1s ease';
             setTimeout(() => {
-                if (this.container.parentNode) {
+                if (this.container && this.container.parentNode) {
                     this.container.parentNode.removeChild(this.container);
                 }
             }, 1000);
