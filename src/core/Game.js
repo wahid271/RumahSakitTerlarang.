@@ -2,7 +2,6 @@
  * Game.js
  * ----------------------------------
  * Kelas utama untuk menginisialisasi dan menjalankan game loop.
- * Mengintegrasikan Player, Level, HUD, dan Loading Screen.
  */
 
 import * as THREE from 'three';
@@ -47,63 +46,84 @@ export class Game {
     }
 
     createClickToStart() {
-    this.clickOverlay = document.createElement('div');
-    this.clickOverlay.className = 'click-to-start';
-    this.clickOverlay.innerHTML = `
-        <h2>RUMAH SAKIT TERLARANG</h2>
-        <p>Klik untuk mulai bermain</p>
-        <p style="margin-top: 15px; font-size: 0.8em;">
-            WASD - Bergerak | SHIFT - Sprint | SPACE - Lompat | E - Interaksi
-        </p>
-    `;
-    
-    // Hapus overlay setelah klik
-    this.clickOverlay.addEventListener('click', () => {
-        if (this.player && this.player.camera) {
-            this.player.camera.controls.lock();
-        }
-        // Sembunyikan overlay
-        this.clickOverlay.style.display = 'none';
-    });
-    
-    document.body.appendChild(this.clickOverlay);
-}
+        this.clickOverlay = document.createElement('div');
+        this.clickOverlay.className = 'click-to-start';
+        this.clickOverlay.innerHTML = `
+            <h2>RUMAH SAKIT TERLARANG</h2>
+            <p>Klik untuk mulai bermain</p>
+            <p style="margin-top: 15px; font-size: 0.8em;">
+                WASD - Bergerak | SHIFT - Sprint | SPACE - Lompat | E - Interaksi
+            </p>
+        `;
+        
+        this.clickOverlay.addEventListener('click', () => {
+            if (this.player && this.player.camera) {
+                this.player.camera.controls.lock();
+            }
+            this.clickOverlay.style.display = 'none';
+        });
+        
+        document.body.appendChild(this.clickOverlay);
+    }
 
     async start() {
-        // Tampilkan loading screen
-        this.loadingScreen = new LoadingScreen();
-        this.loadingScreen.updateProgress(10, 'Memuat sistem...');
-        
-        await this.delay(500);
-        
-        // Initialize player
-        this.loadingScreen.updateProgress(30, 'Mempersiapkan player...');
-        this.player = new Player(this.scene, this.renderer.domElement, this.eventBus);
-        
-        await this.delay(500);
-        
-        // Load level
-        this.loadingScreen.updateProgress(60, 'Membangun Lobby...');
-        this.currentLevel = new Lobby(this.scene);
-        this.currentLevel.load();
-        
-        await this.delay(500);
-        
-        // Initialize HUD
-        this.loadingScreen.updateProgress(80, 'Menyiapkan UI...');
-        this.hud = new HUD(this.eventBus);
-        this.hud.updateHealth(100);
-        this.hud.updateStamina(100);
-        
-        await this.delay(500);
-        
-        this.loadingScreen.updateProgress(100, 'Selesai!');
-        
-        await this.delay(800);
-        this.loadingScreen.hide();
-        
-        // Start game loop
-        this.animate();
+        try {
+            // Tampilkan loading screen
+            this.loadingScreen = new LoadingScreen();
+            this.loadingScreen.updateProgress(10, 'Memuat sistem...');
+            
+            await this.delay(300);
+            
+            // Initialize player
+            this.loadingScreen.updateProgress(30, 'Mempersiapkan player...');
+            this.player = new Player(this.scene, this.renderer.domElement, this.eventBus);
+            
+            await this.delay(300);
+            
+            // Load level
+            this.loadingScreen.updateProgress(60, 'Membangun Lobby...');
+            try {
+                this.currentLevel = new Lobby(this.scene);
+                this.currentLevel.load();
+            } catch (levelError) {
+                console.error('Error loading level:', levelError);
+                // Continue without level
+            }
+            
+            await this.delay(300);
+            
+            // Initialize HUD
+            this.loadingScreen.updateProgress(80, 'Menyiapkan UI...');
+            try {
+                this.hud = new HUD(this.eventBus);
+                this.hud.updateHealth(100);
+                this.hud.updateStamina(100);
+            } catch (hudError) {
+                console.error('Error loading HUD:', hudError);
+            }
+            
+            await this.delay(300);
+            
+            this.loadingScreen.updateProgress(100, 'Selesai!');
+            
+            await this.delay(500);
+            
+            // Hide loading screen
+            if (this.loadingScreen) {
+                this.loadingScreen.hide();
+            }
+            
+            // Start game loop
+            this.animate();
+            
+            console.log('Game started successfully!');
+        } catch (error) {
+            console.error('Fatal error in Game.start():', error);
+            // Force hide loading screen on error
+            if (this.loadingScreen) {
+                this.loadingScreen.hide();
+            }
+        }
     }
 
     delay(ms) {
