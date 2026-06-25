@@ -15,47 +15,48 @@ export class HUD {
         this.createHUD();
         this.setupEventListeners();
     }
-
-    createHUD() {
-        // Container utama HUD
-        this.hudContainer = document.createElement('div');
-        this.hudContainer.className = 'hud-container';
-        this.hudContainer.innerHTML = `
-            <!-- Crosshair -->
-            <div class="crosshair"></div>
-            
-            <!-- Health Bar -->
-            <div class="health-container">
-                <div class="hud-label">HP</div>
-                <div class="bar-container">
-                    <div class="bar-fill health-fill" id="health-fill"></div>
-                </div>
-                <div class="bar-value" id="health-value">100</div>
-            </div>
-            
-            <!-- Stamina Bar -->
-            <div class="stamina-container">
-                <div class="hud-label">STAMINA</div>
-                <div class="bar-container">
-                    <div class="bar-fill stamina-fill" id="stamina-fill"></div>
-                </div>
-                <div class="bar-value" id="stamina-value">100</div>
-            </div>
-            
-            <!-- Objective -->
-            <div class="objective-container">
-                <div class="objective-label">📋 OBJECTIVE</div>
-                <div class="objective-text" id="objective-text">${this.objective}</div>
-            </div>
-            
-            <!-- Interaction Prompt -->
-            <div class="interaction-prompt" id="interaction-prompt" style="display: none;">
-                [E] Interact
-            </div>
-        `;
+    
+createHUD() {
+    // Container utama HUD
+    this.hudContainer = document.createElement('div');
+    this.hudContainer.className = 'hud-container';
+    this.hudContainer.innerHTML = `
+        <!-- Crosshair -->
+        <div class="crosshair"></div>
         
-        document.body.appendChild(this.hudContainer);
-    }
+        <!-- Health Bar -->
+        <div class="health-container">
+            <div class="hud-label">HP</div>
+            <div class="bar-container">
+                <div class="bar-fill health-fill" id="health-fill"></div>
+            </div>
+            <div class="bar-value" id="health-value">100</div>
+        </div>
+        
+        <!-- Stamina Bar -->
+        <div class="stamina-container">
+            <div class="hud-label">STAMINA</div>
+            <div class="bar-container">
+                <div class="bar-fill stamina-fill" id="stamina-fill"></div>
+            </div>
+            <div class="bar-value" id="stamina-value">100</div>
+        </div>
+        
+        <!-- Objective -->
+        <div class="objective-container">
+            <div class="objective-label">📋 OBJECTIVE</div>
+            <div class="objective-text" id="objective-text">${this.objective}</div>
+        </div>
+        
+        <!-- Interaction Prompt -->
+        <div class="interaction-prompt" id="interaction-prompt" style="display: none;">
+            [E] Interact
+        </div>
+    `;
+    
+    document.body.appendChild(this.hudContainer);
+}
+   
 
     setupEventListeners() {
         this.eventBus.subscribe('player:damaged', (data) => {
