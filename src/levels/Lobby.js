@@ -111,41 +111,42 @@ export class Lobby {
         return wall;
     }
 
-    createLighting() {
-        // Ambient light sangat redup (suasana horror)
-        const ambientLight = new THREE.AmbientLight(0x1a1a2e, 0.15);
-        this.scene.add(ambientLight);
+   createLighting() {
+    // Ambient light lebih terang sedikit
+    const ambientLight = new THREE.AmbientLight(0x2a2a3e, 0.3);
+    this.scene.add(ambientLight);
 
-        // Lampu utama lobby (berkedip)
-        const mainLight = new THREE.PointLight(0xffaa44, 1.5, 15);
-        mainLight.position.set(0, this.roomHeight - 0.5, 0);
-        mainLight.castShadow = true;
-        mainLight.shadow.mapSize.width = 1024;
-        mainLight.shadow.mapSize.height = 1024;
-        this.scene.add(mainLight);
-        this.flickeringLights.push(mainLight);
+    // Lampu utama lobby (berkedip) - lebih terang
+    const mainLight = new THREE.PointLight(0xffaa44, 2.0, 20);
+    mainLight.position.set(0, this.roomHeight - 0.5, 0);
+    mainLight.castShadow = true;
+    mainLight.shadow.mapSize.width = 1024;
+    mainLight.shadow.mapSize.height = 1024;
+    this.scene.add(mainLight);
+    this.flickeringLights.push(mainLight);
 
-        // Lampu sudut (redup)
-        const cornerLight1 = new THREE.PointLight(0x4466aa, 0.5, 10);
-        cornerLight1.position.set(-8, 3, -8);
-        this.scene.add(cornerLight1);
+    // Lampu sudut kiri depan - lebih terang
+    const cornerLight1 = new THREE.PointLight(0x4466aa, 1.0, 15);
+    cornerLight1.position.set(-8, 3, -8);
+    this.scene.add(cornerLight1);
 
-        const cornerLight2 = new THREE.PointLight(0x4466aa, 0.5, 10);
-        cornerLight2.position.set(8, 3, 8);
-        this.scene.add(cornerLight2);
+    // Lampu sudut kanan belakang - lebih terang
+    const cornerLight2 = new THREE.PointLight(0x4466aa, 1.0, 15);
+    cornerLight2.position.set(8, 3, 8);
+    this.scene.add(cornerLight2);
 
-        // Lampu emergency merah di sudut
-        const emergencyLight = new THREE.PointLight(0xff0000, 0.8, 8);
-        emergencyLight.position.set(-8, 3.5, 8);
-        this.scene.add(emergencyLight);
-        this.flickeringLights.push(emergencyLight);
+    // Lampu emergency merah - lebih terang
+    const emergencyLight = new THREE.PointLight(0xff0000, 1.2, 12);
+    emergencyLight.position.set(-8, 3.5, 8);
+    this.scene.add(emergencyLight);
+    this.flickeringLights.push(emergencyLight);
 
-        // Buat fisik lampu (bola lampu)
-        this.createLightBulb(0, this.roomHeight - 0.5, 0, 0xffaa44);
-        this.createLightBulb(-8, 3.5, -8, 0x4466aa);
-        this.createLightBulb(8, 3.5, 8, 0x4466aa);
-        this.createLightBulb(-8, 3.5, 8, 0xff0000);
-    }
+    // Buat fisik lampu (bola lampu)
+    this.createLightBulb(0, this.roomHeight - 0.5, 0, 0xffaa44);
+    this.createLightBulb(-8, 3.5, -8, 0x4466aa);
+    this.createLightBulb(8, 3.5, 8, 0x4466aa);
+    this.createLightBulb(-8, 3.5, 8, 0xff0000);
+}
 
     createLightBulb(x, y, z, color) {
         const geometry = new THREE.SphereGeometry(0.15, 8, 8);
