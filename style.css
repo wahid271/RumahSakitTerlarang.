@@ -159,17 +159,19 @@ canvas {
 .health-container,
 .stamina-container {
     position: absolute;
-    bottom: 30px;
     left: 30px;
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.stamina-container {
+.health-container {
     bottom: 70px;
 }
 
+.stamina-container {
+    bottom: 30px;
+}
 .hud-label {
     font-size: 0.9em;
     font-weight: bold;
