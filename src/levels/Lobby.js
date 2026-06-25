@@ -166,53 +166,58 @@ export class Lobby {
     }
 
     createDecorations() {
-        // Kursi roda tua di sudut
-        this.createWheelchair(-6, 0, -6);
+    // Kursi roda tua di sudut - posisi lebih dekat ke tengah
+    this.createWheelchair(-5, 0, -5);
 
-        // Meja resepsionis
-        this.createReceptionDesk(0, 0, -8);
+    // Meja resepsionis - posisi lebih dekat
+    this.createReceptionDesk(0, 0, -6);
 
-        // Papan pengumuman
-        this.createNoticeBoard(0, 2, -9.7);
+    // Papan pengumuman di dinding belakang
+    this.createNoticeBoard(0, 2, -9.7);
 
-        // Beberapa kotak/kardus berantakan
-        this.createBoxes(6, 0, 6);
-    }
+    // Beberapa kotak/kardus berantakan - posisi lebih dekat
+    this.createBoxes(5, 0, 5);
+    
+    // Tambah kursi di samping meja
+    this.createChair(2, 0, -6);
+}
+    createChair(x, y, z) {
+    const group = new THREE.Group();
 
-    createWheelchair(x, y, z) {
-        const group = new THREE.Group();
+    // Dudukan
+    const seatGeometry = new THREE.BoxGeometry(0.5, 0.1, 0.5);
+    const seatMaterial = new THREE.MeshStandardMaterial({ color: 0x4a3728 });
+    const seat = new THREE.Mesh(seatGeometry, seatMaterial);
+    seat.position.y = 0.5;
+    group.add(seat);
 
-        // Kursi
-        const seatGeometry = new THREE.BoxGeometry(0.8, 0.1, 0.8);
-        const seatMaterial = new THREE.MeshStandardMaterial({ color: 0x333333 });
-        const seat = new THREE.Mesh(seatGeometry, seatMaterial);
-        seat.position.y = 0.6;
-        group.add(seat);
+    // Sandaran
+    const backGeometry = new THREE.BoxGeometry(0.5, 0.6, 0.1);
+    const back = new THREE.Mesh(backGeometry, seatMaterial);
+    back.position.set(0, 0.8, -0.2);
+    group.add(back);
 
-        // Sandaran
-        const backGeometry = new THREE.BoxGeometry(0.8, 0.8, 0.1);
-        const back = new THREE.Mesh(backGeometry, seatMaterial);
-        back.position.set(0, 1, -0.35);
-        group.add(back);
+    // 4 Kaki
+    const legGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.5);
+    const legMaterial = new THREE.MeshStandardMaterial({ color: 0x2a2a2a });
+    const positions = [
+        [-0.2, 0.25, -0.2],
+        [0.2, 0.25, -0.2],
+        [-0.2, 0.25, 0.2],
+        [0.2, 0.25, 0.2]
+    ];
+    
+    positions.forEach(pos => {
+        const leg = new THREE.Mesh(legGeometry, legMaterial);
+        leg.position.set(...pos);
+        group.add(leg);
+    });
 
-        // Roda besar
-        const wheelGeometry = new THREE.TorusGeometry(0.4, 0.05, 8, 16);
-        const wheelMaterial = new THREE.MeshStandardMaterial({ color: 0x111111 });
-        const wheel1 = new THREE.Mesh(wheelGeometry, wheelMaterial);
-        wheel1.position.set(-0.45, 0.4, 0);
-        wheel1.rotation.y = Math.PI / 2;
-        group.add(wheel1);
-
-        const wheel2 = new THREE.Mesh(wheelGeometry, wheelMaterial);
-        wheel2.position.set(0.45, 0.4, 0);
-        wheel2.rotation.y = Math.PI / 2;
-        group.add(wheel2);
-
-        group.position.set(x, y, z);
-        group.castShadow = true;
-        this.scene.add(group);
-        this.objects.push(group);
-    }
+    group.position.set(x, y, z);
+    group.castShadow = true;
+    this.scene.add(group);
+    this.objects.push(group);
+}
 
     createReceptionDesk(x, y, z) {
         const group = new THREE.Group();
