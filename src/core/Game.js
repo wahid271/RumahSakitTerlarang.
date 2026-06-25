@@ -47,22 +47,27 @@ export class Game {
     }
 
     createClickToStart() {
-        this.clickOverlay = document.createElement('div');
-        this.clickOverlay.className = 'click-to-start';
-        this.clickOverlay.innerHTML = `
-            <h2>RUMAH SAKIT TERLARANG</h2>
-            <p>Klik untuk mulai bermain</p>
-            <p style="margin-top: 15px; font-size: 0.8em;">
-                WASD - Bergerak | SHIFT - Sprint | SPACE - Lompat | E - Interaksi
-            </p>
-        `;
-        this.clickOverlay.addEventListener('click', () => {
-            if (this.player && this.player.camera) {
-                this.player.camera.controls.lock();
-            }
-        });
-        document.body.appendChild(this.clickOverlay);
-    }
+    this.clickOverlay = document.createElement('div');
+    this.clickOverlay.className = 'click-to-start';
+    this.clickOverlay.innerHTML = `
+        <h2>RUMAH SAKIT TERLARANG</h2>
+        <p>Klik untuk mulai bermain</p>
+        <p style="margin-top: 15px; font-size: 0.8em;">
+            WASD - Bergerak | SHIFT - Sprint | SPACE - Lompat | E - Interaksi
+        </p>
+    `;
+    
+    // Hapus overlay setelah klik
+    this.clickOverlay.addEventListener('click', () => {
+        if (this.player && this.player.camera) {
+            this.player.camera.controls.lock();
+        }
+        // Sembunyikan overlay
+        this.clickOverlay.style.display = 'none';
+    });
+    
+    document.body.appendChild(this.clickOverlay);
+}
 
     async start() {
         // Tampilkan loading screen
