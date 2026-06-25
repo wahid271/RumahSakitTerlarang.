@@ -2,7 +2,6 @@
  * Lobby.js
  * ----------------------------------
  * Setup dan logika untuk area Lobby rumah sakit.
- * Membuat ruangan 3D dengan dinding, lantai, langit-langit, dan pencahayaan horror.
  */
 
 import * as THREE from 'three';
@@ -111,42 +110,41 @@ export class Lobby {
         return wall;
     }
 
-   createLighting() {
-    // Ambient light lebih terang sedikit
-    const ambientLight = new THREE.AmbientLight(0x2a2a3e, 0.3);
-    this.scene.add(ambientLight);
+    createLighting() {
+        // Ambient light
+        const ambientLight = new THREE.AmbientLight(0x2a2a3e, 0.3);
+        this.scene.add(ambientLight);
 
-    // Lampu utama lobby (berkedip) - lebih terang
-    const mainLight = new THREE.PointLight(0xffaa44, 2.0, 20);
-    mainLight.position.set(0, this.roomHeight - 0.5, 0);
-    mainLight.castShadow = true;
-    mainLight.shadow.mapSize.width = 1024;
-    mainLight.shadow.mapSize.height = 1024;
-    this.scene.add(mainLight);
-    this.flickeringLights.push(mainLight);
+        // Main light (flickering)
+        const mainLight = new THREE.PointLight(0xffaa44, 2.0, 20);
+        mainLight.position.set(0, this.roomHeight - 0.5, 0);
+        mainLight.castShadow = true;
+        mainLight.shadow.mapSize.width = 1024;
+        mainLight.shadow.mapSize.height = 1024;
+        this.scene.add(mainLight);
+        this.flickeringLights.push(mainLight);
 
-    // Lampu sudut kiri depan - lebih terang
-    const cornerLight1 = new THREE.PointLight(0x4466aa, 1.0, 15);
-    cornerLight1.position.set(-8, 3, -8);
-    this.scene.add(cornerLight1);
+        // Corner lights
+        const cornerLight1 = new THREE.PointLight(0x4466aa, 1.0, 15);
+        cornerLight1.position.set(-8, 3, -8);
+        this.scene.add(cornerLight1);
 
-    // Lampu sudut kanan belakang - lebih terang
-    const cornerLight2 = new THREE.PointLight(0x4466aa, 1.0, 15);
-    cornerLight2.position.set(8, 3, 8);
-    this.scene.add(cornerLight2);
+        const cornerLight2 = new THREE.PointLight(0x4466aa, 1.0, 15);
+        cornerLight2.position.set(8, 3, 8);
+        this.scene.add(cornerLight2);
 
-    // Lampu emergency merah - lebih terang
-    const emergencyLight = new THREE.PointLight(0xff0000, 1.2, 12);
-    emergencyLight.position.set(-8, 3.5, 8);
-    this.scene.add(emergencyLight);
-    this.flickeringLights.push(emergencyLight);
+        // Emergency light
+        const emergencyLight = new THREE.PointLight(0xff0000, 1.2, 12);
+        emergencyLight.position.set(-8, 3.5, 8);
+        this.scene.add(emergencyLight);
+        this.flickeringLights.push(emergencyLight);
 
-    // Buat fisik lampu (bola lampu)
-    this.createLightBulb(0, this.roomHeight - 0.5, 0, 0xffaa44);
-    this.createLightBulb(-8, 3.5, -8, 0x4466aa);
-    this.createLightBulb(8, 3.5, 8, 0x4466aa);
-    this.createLightBulb(-8, 3.5, 8, 0xff0000);
-}
+        // Light bulbs
+        this.createLightBulb(0, this.roomHeight - 0.5, 0, 0xffaa44);
+        this.createLightBulb(-8, 3.5, -8, 0x4466aa);
+        this.createLightBulb(8, 3.5, 8, 0x4466aa);
+        this.createLightBulb(-8, 3.5, 8, 0xff0000);
+    }
 
     createLightBulb(x, y, z, color) {
         const geometry = new THREE.SphereGeometry(0.15, 8, 8);
@@ -156,7 +154,7 @@ export class Lobby {
         this.scene.add(bulb);
         this.objects.push(bulb);
 
-        // Kabel lampu
+        // Cable
         const cableGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.5);
         const cableMaterial = new THREE.MeshBasicMaterial({ color: 0x222222 });
         const cable = new THREE.Mesh(cableGeometry, cableMaterial);
@@ -166,63 +164,61 @@ export class Lobby {
     }
 
     createDecorations() {
-    // Kursi roda tua di sudut - posisi lebih dekat ke tengah
-    this.createWheelchair(-5, 0, -5);
+        // Wheelchair
+        this.createWheelchair(-5, 0, -5);
 
-    // Meja resepsionis - posisi lebih dekat
-    this.createReceptionDesk(0, 0, -6);
+        // Reception desk
+        this.createReceptionDesk(0, 0, -6);
 
-    // Papan pengumuman di dinding belakang
-    this.createNoticeBoard(0, 2, -9.7);
+        // Notice board
+        this.createNoticeBoard(0, 2, -9.7);
 
-    // Beberapa kotak/kardus berantakan - posisi lebih dekat
-    this.createBoxes(5, 0, 5);
-    
-    // Tambah kursi di samping meja
-    this.createChair(2, 0, -6);
-}
-    createChair(x, y, z) {
-    const group = new THREE.Group();
+        // Boxes
+        this.createBoxes(5, 0, 5);
+        
+        // Chair
+        this.createChair(2, 0, -6);
+    }
 
-    // Dudukan
-    const seatGeometry = new THREE.BoxGeometry(0.5, 0.1, 0.5);
-    const seatMaterial = new THREE.MeshStandardMaterial({ color: 0x4a3728 });
-    const seat = new THREE.Mesh(seatGeometry, seatMaterial);
-    seat.position.y = 0.5;
-    group.add(seat);
+    createWheelchair(x, y, z) {
+        const group = new THREE.Group();
 
-    // Sandaran
-    const backGeometry = new THREE.BoxGeometry(0.5, 0.6, 0.1);
-    const back = new THREE.Mesh(backGeometry, seatMaterial);
-    back.position.set(0, 0.8, -0.2);
-    group.add(back);
+        // Seat
+        const seatGeometry = new THREE.BoxGeometry(0.8, 0.1, 0.8);
+        const seatMaterial = new THREE.MeshStandardMaterial({ color: 0x333333 });
+        const seat = new THREE.Mesh(seatGeometry, seatMaterial);
+        seat.position.y = 0.6;
+        group.add(seat);
 
-    // 4 Kaki
-    const legGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.5);
-    const legMaterial = new THREE.MeshStandardMaterial({ color: 0x2a2a2a });
-    const positions = [
-        [-0.2, 0.25, -0.2],
-        [0.2, 0.25, -0.2],
-        [-0.2, 0.25, 0.2],
-        [0.2, 0.25, 0.2]
-    ];
-    
-    positions.forEach(pos => {
-        const leg = new THREE.Mesh(legGeometry, legMaterial);
-        leg.position.set(...pos);
-        group.add(leg);
-    });
+        // Backrest
+        const backGeometry = new THREE.BoxGeometry(0.8, 0.8, 0.1);
+        const back = new THREE.Mesh(backGeometry, seatMaterial);
+        back.position.set(0, 1, -0.35);
+        group.add(back);
 
-    group.position.set(x, y, z);
-    group.castShadow = true;
-    this.scene.add(group);
-    this.objects.push(group);
-}
+        // Wheels
+        const wheelGeometry = new THREE.TorusGeometry(0.4, 0.05, 8, 16);
+        const wheelMaterial = new THREE.MeshStandardMaterial({ color: 0x111111 });
+        const wheel1 = new THREE.Mesh(wheelGeometry, wheelMaterial);
+        wheel1.position.set(-0.45, 0.4, 0);
+        wheel1.rotation.y = Math.PI / 2;
+        group.add(wheel1);
+
+        const wheel2 = new THREE.Mesh(wheelGeometry, wheelMaterial);
+        wheel2.position.set(0.45, 0.4, 0);
+        wheel2.rotation.y = Math.PI / 2;
+        group.add(wheel2);
+
+        group.position.set(x, y, z);
+        group.castShadow = true;
+        this.scene.add(group);
+        this.objects.push(group);
+    }
 
     createReceptionDesk(x, y, z) {
         const group = new THREE.Group();
 
-        // Meja utama
+        // Desk
         const deskGeometry = new THREE.BoxGeometry(4, 1.2, 1);
         const deskMaterial = new THREE.MeshStandardMaterial({ color: 0x4a3728 });
         const desk = new THREE.Mesh(deskGeometry, deskMaterial);
@@ -231,21 +227,21 @@ export class Lobby {
         desk.receiveShadow = true;
         group.add(desk);
 
-        // Komputer monitor tua
+        // Monitor
         const monitorGeometry = new THREE.BoxGeometry(0.6, 0.5, 0.1);
         const monitorMaterial = new THREE.MeshStandardMaterial({ color: 0x222222 });
         const monitor = new THREE.Mesh(monitorGeometry, monitorMaterial);
         monitor.position.set(-1, 1.5, -0.3);
         group.add(monitor);
 
-        // Layar monitor (menyala redup)
+        // Screen
         const screenGeometry = new THREE.PlaneGeometry(0.5, 0.4);
         const screenMaterial = new THREE.MeshBasicMaterial({ color: 0x003300 });
         const screen = new THREE.Mesh(screenGeometry, screenMaterial);
         screen.position.set(-1, 1.5, -0.24);
         group.add(screen);
 
-        // Lampu monitor
+        // Screen light
         const screenLight = new THREE.PointLight(0x00ff00, 0.3, 2);
         screenLight.position.set(-1, 1.5, 0);
         group.add(screenLight);
@@ -264,7 +260,7 @@ export class Lobby {
         this.scene.add(board);
         this.objects.push(board);
 
-        // Kertas pengumuman
+        // Papers
         const paperGeometry = new THREE.PlaneGeometry(0.5, 0.7);
         const paperMaterial = new THREE.MeshStandardMaterial({ color: 0xddddaa });
         for (let i = 0; i < 6; i++) {
@@ -299,14 +295,51 @@ export class Lobby {
         }
     }
 
+    createChair(x, y, z) {
+        const group = new THREE.Group();
+
+        // Seat
+        const seatGeometry = new THREE.BoxGeometry(0.5, 0.1, 0.5);
+        const seatMaterial = new THREE.MeshStandardMaterial({ color: 0x4a3728 });
+        const seat = new THREE.Mesh(seatGeometry, seatMaterial);
+        seat.position.y = 0.5;
+        group.add(seat);
+
+        // Backrest
+        const backGeometry = new THREE.BoxGeometry(0.5, 0.6, 0.1);
+        const back = new THREE.Mesh(backGeometry, seatMaterial);
+        back.position.set(0, 0.8, -0.2);
+        group.add(back);
+
+        // Legs
+        const legGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.5);
+        const legMaterial = new THREE.MeshStandardMaterial({ color: 0x2a2a2a });
+        const positions = [
+            [-0.2, 0.25, -0.2],
+            [0.2, 0.25, -0.2],
+            [-0.2, 0.25, 0.2],
+            [0.2, 0.25, 0.2]
+        ];
+        
+        positions.forEach(pos => {
+            const leg = new THREE.Mesh(legGeometry, legMaterial);
+            leg.position.set(...pos);
+            group.add(leg);
+        });
+
+        group.position.set(x, y, z);
+        group.castShadow = true;
+        this.scene.add(group);
+        this.objects.push(group);
+    }
+
     update(deltaTime) {
-        // Efek lampu berkedip
+        // Flickering lights effect
         this.flickeringLights.forEach((light, index) => {
             if (Math.random() > 0.95) {
                 light.intensity = Math.random() * 0.5 + 0.5;
             } else {
-                // Smooth return to normal
-                const targetIntensity = index === 0 ? 1.5 : 0.8;
+                const targetIntensity = index === 0 ? 2.0 : 1.2;
                 light.intensity += (targetIntensity - light.intensity) * 0.1;
             }
         });
