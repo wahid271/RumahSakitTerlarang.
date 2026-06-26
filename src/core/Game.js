@@ -1,16 +1,16 @@
 /**
- * Game.js
- * ----------------------------------
- * Kelas utama untuk menginisialisasi dan menjalankan game loop.
+ * Game.js - Updated dengan Enemy Manager & Combat
  */
 
 import * as THREE from 'three';
-import { SceneManager } from './SceneManager.js';
 import { Player } from '../player/Player.js';
 import { EventBus } from './EventBus.js';
 import { Lobby } from '../levels/Lobby.js';
 import { HUD } from '../ui/HUD.js';
 import { LoadingScreen } from '../ui/LoadingScreen.js';
+import { EnemyManager } from '../enemy/EnemyManager.js';
+import { HitDetection } from '../combat/HitDetection.js';
+import { DamageSystem } from '../combat/DamageSystem.js';
 
 export class Game {
     constructor() {
@@ -32,11 +32,15 @@ export class Game {
         
         this.clock = new THREE.Clock();
         this.eventBus = new EventBus();
-        this.sceneManager = new SceneManager(this.scene);
         this.player = null;
         this.currentLevel = null;
         this.hud = null;
         this.loadingScreen = null;
+        
+        // Combat & Enemy systems
+        this.enemyManager = null;
+        this.hitDetection = null;
+        this.damageSystem = null;
         
         // Handle window resize
         window.addEventListener('resize', () => this.onWindowResize());
@@ -52,7 +56,8 @@ export class Game {
             <h2>RUMAH SAKIT TERLARANG</h2>
             <p>Klik untuk mulai bermain</p>
             <p style="margin-top: 15px; font-size: 0.8em;">
-                WASD - Bergerak | SHIFT - Sprint | SPACE - Lompat | E - Interaksi
+                WASD - Bergerak | SHIFT - Sprint | SPACE - Lompat<br>
+                E - Interaksi | KLIK - Serang | 1-4 - Ganti Senjata
             </p>
         `;
         
@@ -68,7 +73,6 @@ export class Game {
 
     async start() {
         try {
-            // Tampilkan loading screen
             this.loadingScreen = new LoadingScreen();
             this.loadingScreen.updateProgress(10, 'Memuat sistem...');
             
@@ -80,50 +84,109 @@ export class Game {
             
             await this.delay(300);
             
-            // Load level
+            // Initialize combat systems
+            this.loadingScreen.updateProgress(50, 'Menyiapkan combat system...');
+            this.hitDetection = new HitDetection(this.player.camera.camera, this.scene);
+            this.damageSystem = new DamageSystem(this.eventBus);
+            
+            await this.delay(300);
+            
+            // Initialize enemy manager
             this.loadingScreen.updateProgress(60, 'Membangun Lobby...');
-            try {
-                this.currentLevel = new Lobby(this.scene);
-                this.currentLevel.load();
-            } catch (levelError) {
-                console.error('Error loading level:', levelError);
-                // Continue without level
-            }
+            this.currentLevel = new Lobby(this.scene);
+            this.currentLevel.load();
+            
+            this.enemyManager = new EnemyManager(this.scene, this.eventBus);
+            this.spawnTestEnemies();
             
             await this.delay(300);
             
             // Initialize HUD
             this.loadingScreen.updateProgress(80, 'Menyiapkan UI...');
-            try {
-                this.hud = new HUD(this.eventBus);
-                this.hud.updateHealth(100);
-                this.hud.updateStamina(100);
-            } catch (hudError) {
-                console.error('Error loading HUD:', hudError);
-            }
+            this.hud = new HUD(this.eventBus);
+            this.hud.updateHealth(100);
+            this.hud.updateStamina(100);
             
             await this.delay(300);
+            
+            // Setup combat event listeners
+            this.setupCombatListeners();
             
             this.loadingScreen.updateProgress(100, 'Selesai!');
             
             await this.delay(500);
             
-            // Hide loading screen
             if (this.loadingScreen) {
                 this.loadingScreen.hide();
             }
             
-            // Start game loop
             this.animate();
             
             console.log('Game started successfully!');
         } catch (error) {
             console.error('Fatal error in Game.start():', error);
-            // Force hide loading screen on error
             if (this.loadingScreen) {
                 this.loadingScreen.hide();
             }
         }
+    }
+
+    spawnTestEnemies() {
+        // Spawn some test enemies in the lobby
+        const enemyConfigs = [
+            { type: 'pocong', position: new THREE.Vector3(-5, 0, -8) },
+            { type: 'tuyul', position: new THREE.Vector3(6, 0, 5) },
+            { type: 'kuntilanak', position: new THREE.Vector3(-7, 0, 7) },
+        ];
+        
+        this.enemyManager.spawnWave(enemyConfigs);
+    }
+
+    setupCombatListeners() {
+        // Handle player attack
+        this.eventBus.subscribe('player:performAttack', (data) => {
+            if (!this.enemyManager) return;
+            
+            const weapon = data.weapon;
+            
+            // Check for hits
+            const hits = this.hitDetection.checkConeHit(this.enemyManager, weapon, Math.PI / 3);
+            
+            hits.forEach(hit => {
+                const damage = this.damageSystem.calculateDamage(weapon, {
+                    enemy: hit.enemy,
+                    hitPoint: hit.enemy.mesh.position.clone()
+                });
+                
+                this.damageSystem.applyDamage(
+                    hit.enemy,
+                    damage,
+                    weapon.knockback
+                );
+                
+                console.log(`Hit ${hit.enemy.config.name} for ${damage} damage!`);
+            });
+            
+            if (hits.length > 0) {
+                this.eventBus.publish('combat:hitConfirmed', { hits });
+            }
+        });
+        
+        // Handle enemy attacks on player
+        this.eventBus.subscribe('enemy:attack', (data) => {
+            const distance = this.player.getPosition().distanceTo(data.enemy.getPosition());
+            
+            if (distance <= data.enemy.attackRange) {
+                this.player.health.takeDamage(data.damage);
+                this.hud.updateHealth(this.player.health.currentHP);
+            }
+        });
+        
+        // Enemy died
+        this.eventBus.subscribe('enemy:died', (data) => {
+            console.log(`${data.enemy.config.name} died!`);
+            this.hud.setObjective(`Musuh tersisa: ${this.enemyManager.getEnemyCount()}`);
+        });
     }
 
     delay(ms) {
@@ -137,7 +200,12 @@ export class Game {
         
         // Update player
         if (this.player) {
-            this.player.update(deltaTime);
+            this.player.update(deltaTime, this.enemyManager);
+        }
+        
+        // Update enemies
+        if (this.enemyManager && this.player) {
+            this.enemyManager.updateAll(deltaTime, this.player.getPosition());
         }
         
         // Update level
